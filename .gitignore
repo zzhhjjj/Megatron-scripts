@@ -1,0 +1,5 @@
+checkpoints/
+tokenizers/
+datasets/
+hf_checkpoints/
+megatron_checkpoints/
