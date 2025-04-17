@@ -6,10 +6,12 @@ from datasets import load_dataset
 import json
 import os
 
+megatron_files_path='/fsx/haojun/Megatron-files'
 hf_dataset_name = "roneneldan/TinyStories"
 dataset_name = hf_dataset_name.split("/")[-1]
 split = "train"
-save_path = f"/fsx/haojun/Megatron-files/datasets/{dataset_name}/raw/dataset.json"
+
+save_path = f"{megatron_files_path}/datasets/{dataset_name}/raw/dataset.json"
 
 dataset = load_dataset(hf_dataset_name, split=split)  
 data = dataset.to_list() # Convert to list of dicts (serializable)

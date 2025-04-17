@@ -1,15 +1,19 @@
 # convert hf checkpoint to megatron checkpoint
 # tools/checkpoint/loader_llama_mistral.py
-export PYTHONPATH=/fsx/haojun/Megatron-LM:$PYTHONPATH
 
-tools_path=/fsx/haojun/Megatron-LM/tools/checkpoint/convert.py
+Megatron-files_path=/fsx/haojun/Megatron-files
+Megatron-LM_path=/fsx/haojun/Megatron-LM
+
+export PYTHONPATH=${Megatron-LM_path}:$PYTHONPATH
+
+tools_path=${Megatron-LM_path}/tools/checkpoint/convert.py
 
 model_name=Meta-Llama-3-8B
 model_size=llama3
 checkpoint_type=hf
-hf_checkpoints_dir=/fsx/haojun/Megatron-files/hf_checkpoints/${model_name}
-tokenizer_model=/fsx/haojun/Megatron-files/tokenizers/Meta-Llama-3-8B
-megatron_checkpoints_dir=/fsx/haojun/Megatron-files/megatron_checkpoints/${model_name}
+hf_checkpoints_dir=${Megatron-files_path}/hf_checkpoints/${model_name}
+tokenizer_model=${Megatron-files_path}/tokenizers/${model_name}
+megatron_checkpoints_dir=${Megatron-files_path}/checkpoints/${model_name}
 loader=llama_mistral
 saver=core
 TP=1

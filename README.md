@@ -18,6 +18,17 @@ cd Megatron-LM
 pip install -e .
 ```
 
+## Path: 
+Create the folder structure
+```bash
+python scripts/create_folder.py
+```
+
+**hf_checkpoints**: hf model checkpoints  
+**tokenizers**: tokenizers  
+**datasets**: hf datasets and processed datasets  
+**checkpoints**: megatron model checkpoints  
+
 ## Quick Start
 1. Login to huggingface
 ```bash
@@ -95,10 +106,6 @@ OTHER_ARGS=(
 )
 ```
 
-## Path: 
-hf_checkpoints: for hf model checkpoints  
-tokenizers: for tokenizers  
-datasets: for hf datasets and processed datasets  
-checkpoints: megatron model checkpoints  
+
 
 

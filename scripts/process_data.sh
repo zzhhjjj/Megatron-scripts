@@ -1,7 +1,11 @@
 # The script processes the TinyStories dataset and saves it as a JSON file.
-tools_dir=/fsx/haojun/Megatron-LM/tools
-raw_data_path=/fsx/haojun/Megatron-files/datasets/TinyStories/raw/dataset.json
-output_path=/fsx/haojun/Megatron-files/datasets/TinyStories/processed/tiny_stories
+
+Megatron-files_path=/fsx/haojun/Megatron-files
+Megatron-LM_path=/fsx/haojun/Megatron-LM
+
+tools_dir=${Megatron-LM_path}/tools
+raw_data_path=${Megatron-files_path}/datasets/TinyStories/raw/dataset.json
+output_path=${Megatron-files_path}/datasets/TinyStories/processed/tiny_stories
 tokenizer_model=openai-community/gpt2
 num_proc=24
 
