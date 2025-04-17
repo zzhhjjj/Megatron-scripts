@@ -1,5 +1,5 @@
 # Megatron-files
-This repository contains the scripts used to download and process the dataset for the Megatron-files project.
+This repository contains the details for setting up the Megatron environment as well as the scripts related to Megatron
 
 ## Install
 ```bash
