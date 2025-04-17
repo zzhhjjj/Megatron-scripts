@@ -84,7 +84,8 @@ The `setup.py` file is modified to include the following packages:
 packages=setuptools.find_namespace_packages(include=["megatron.core", "megatron.core.*", "megatron.training", "megatron.training.*", "megatron.legacy", "megatron.legacy.*", "megatron.inference", "megatron.inference.*"]),
 ```
 
-To not use implementation from transformer engine, Apex, Fused kernel, add the following arguments to the training script:
+### Disable transformer engine, Apex, Fused kernel(if necessary)
+Add the following arguments to the training script:
 ```bash
 OTHER_ARGS=(
     --transformer-impl local

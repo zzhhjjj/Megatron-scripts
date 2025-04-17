@@ -30,7 +30,8 @@ GPT_MODEL_ARGS=(
     --num-layers 12 
     --hidden-size 512 
     --num-attention-heads 8 
-    # --num-query-groups 4
+    --group-query-attention
+    --num-query-groups 2
     --seq-length 1024 
     --max-position-embeddings 1024 
     --attention-backend flash # Can use (flash/fused/unfused/local)
@@ -48,18 +49,30 @@ TRAINING_ARGS=(
     --adam-beta2 0.95 
     --init-method-std 0.006 
     --clip-grad 1.0 
-    --fp16
+    --bf16
     --lr 1.0e-3 
     --lr-decay-style cosine 
     --min-lr 1.0e-4
     --lr-warmup-fraction .001 
     --lr-decay-iters 430000 
+    --disable-bias-linear
 )
 
 MODEL_PARALLEL_ARGS=(
 	--tensor-model-parallel-size 1 
 	--pipeline-model-parallel-size 1
-    # --transformer-impl local
+)
+
+MOE_ARGS=(
+    --num-experts 8
+    --expert-model-parallel-size 1
+    --moe-grouped-gemm
+    --moe-permute-fusion
+    --moe-router-load-balancing-type aux_loss # options: aux_loss, sinkhorn, none. Default is aux_loss.
+    --moe-router-topk 2
+    --moe-aux-loss-coeff 1e-2
+    --use-distributed-optimizer
+    --moe-token-dispatcher-type alltoall
 )
 
 DATA_ARGS=(
@@ -82,17 +95,30 @@ EVAL_AND_LOGGING_ARGS=(
 # Disable transformer engine, Apex, Fused kernel 
 OTHER_ARGS=(
     # --transformer-impl local
-    # --no-persist-layer-norm
-    # --no-gradient-accumulation-fusion
-    # --no-masked-softmax-fusion
+    --no-persist-layer-norm
+    --no-gradient-accumulation-fusion
+    --no-masked-softmax-fusion
 )
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 
+# train
 torchrun ${DISTRIBUTED_ARGS[@]} $train_script \
     ${GPT_MODEL_ARGS[@]} \
     ${TRAINING_ARGS[@]} \
     ${MODEL_PARALLEL_ARGS[@]} \
     ${DATA_ARGS[@]} \
     ${EVAL_AND_LOGGING_ARGS[@]} \
-    ${OTHER_ARGS[@]}
+    ${OTHER_ARGS[@]} \
+    ${MOE_ARGS[@]}
+
+# debug 
+# CUDA_DEVICE_MAX_CONNECTIONS=1 debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node $GPUS_PER_NODE \
+#     --nnodes 1 --rdzv_backend c10d --max_restarts 0 --tee 3 $train_script \
+#     ${GPT_MODEL_ARGS[@]} \
+#     ${TRAINING_ARGS[@]} \
+#     ${MODEL_PARALLEL_ARGS[@]} \
+#     ${DATA_ARGS[@]} \
+#     ${EVAL_AND_LOGGING_ARGS[@]} \
+#     ${OTHER_ARGS[@]} \
+#     ${MOE_ARGS[@]}
