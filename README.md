@@ -34,12 +34,12 @@ python scripts/create_folder.py
 ```bash
 huggingface-cli login 
 ```
-2. Download the dataset
+2. Download the dataset  
 Save the dataset to the `datasets/dataset_name/raw` folder. The output file is in jsonl format. only "text" field is needed.
 ```bash
 python download.py
 ```
-3. Process the dataset
+3. Process the dataset  
 Save the processed dataset to the `datasets/dataset_name/processed` folder
 ```bash
 ./process_data.sh
