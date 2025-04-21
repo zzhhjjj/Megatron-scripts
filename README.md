@@ -27,7 +27,7 @@ python scripts/create_folder.py
 **hf_checkpoints**: hf model checkpoints  
 **tokenizers**: tokenizers  
 **datasets**: hf datasets and processed datasets  
-**checkpoints**: megatron model checkpoints  
+**megatron_checkpoints**: megatron model checkpoints  
 
 ## Quick Start
 1. Login to huggingface
@@ -35,7 +35,8 @@ python scripts/create_folder.py
 huggingface-cli login 
 ```
 2. Download the dataset  
-Save the dataset to the `datasets/dataset_name/raw` folder. The output file is in jsonl format. only "text" field is needed.
+Save the dataset to the `datasets/dataset_name/raw` folder. The output file is in jsonl format.  
+Only "text" field is needed.
 ```bash
 python download.py
 ```
