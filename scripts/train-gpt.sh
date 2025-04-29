@@ -1,16 +1,24 @@
 #!/bin/bash
 
-# Runs the "175B" parameter model
+# debug or training
+MODE="train"
+
+# Parse arguments
+for arg in "$@"
+do
+    if [ "$arg" == "-d" ] || [ "$arg" == "--debug" ]; then
+        MODE="debug"
+    fi
+done
 
 export CUDA_DEVICE_MAX_CONNECTIONS=1
-
-GPUS_PER_NODE=1
 
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000
 NUM_NODES=1
 NODE_RANK=0
+GPUS_PER_NODE=1
 WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 
 
@@ -66,13 +74,15 @@ MODEL_PARALLEL_ARGS=(
 MOE_ARGS=(
     --num-experts 8
     --expert-model-parallel-size 1
+    --moe-use-legacy-grouped-gemm # a bug when DP=4 with TEGroupedMLP
     --moe-grouped-gemm
     --moe-permute-fusion
-    --moe-router-load-balancing-type aux_loss # options: aux_loss, sinkhorn, none. Default is aux_loss.
     --moe-router-topk 2
-    --moe-aux-loss-coeff 1e-2
     --use-distributed-optimizer
     --moe-token-dispatcher-type alltoall
+    # auxiliary loss
+    --moe-router-load-balancing-type aux_loss # options: aux_loss, sinkhorn, none. Default is aux_loss.
+    --moe-aux-loss-coeff 1e-2
 )
 
 DATA_ARGS=(
@@ -80,6 +90,7 @@ DATA_ARGS=(
     --vocab-file $VOCAB_FILE 
     --merge-file $MERGE_FILE 
     --split 949,50,1
+    --num-workers 0
 )
 
 EVAL_AND_LOGGING_ARGS=(
@@ -102,8 +113,23 @@ OTHER_ARGS=(
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 
-# train
-torchrun ${DISTRIBUTED_ARGS[@]} $train_script \
+
+if [ "$MODE" == "train" ]; then
+    ## train
+    echo "Training mode"
+    torchrun ${DISTRIBUTED_ARGS[@]} $train_script \
+        ${GPT_MODEL_ARGS[@]} \
+        ${TRAINING_ARGS[@]} \
+        ${MODEL_PARALLEL_ARGS[@]} \
+        ${DATA_ARGS[@]} \
+        ${EVAL_AND_LOGGING_ARGS[@]} \
+        ${OTHER_ARGS[@]} \
+        ${MOE_ARGS[@]}
+else
+    ## debug 
+    echo "Debug mode"
+    debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node $GPUS_PER_NODE \
+    --nnodes 1 --rdzv_endpoint=localhost:29800 --rdzv_backend c10d --max_restarts 0 --tee 3 $train_script \
     ${GPT_MODEL_ARGS[@]} \
     ${TRAINING_ARGS[@]} \
     ${MODEL_PARALLEL_ARGS[@]} \
@@ -111,14 +137,4 @@ torchrun ${DISTRIBUTED_ARGS[@]} $train_script \
     ${EVAL_AND_LOGGING_ARGS[@]} \
     ${OTHER_ARGS[@]} \
     ${MOE_ARGS[@]}
-
-# debug 
-# CUDA_DEVICE_MAX_CONNECTIONS=1 debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node $GPUS_PER_NODE \
-#     --nnodes 1 --rdzv_backend c10d --max_restarts 0 --tee 3 $train_script \
-#     ${GPT_MODEL_ARGS[@]} \
-#     ${TRAINING_ARGS[@]} \
-#     ${MODEL_PARALLEL_ARGS[@]} \
-#     ${DATA_ARGS[@]} \
-#     ${EVAL_AND_LOGGING_ARGS[@]} \
-#     ${OTHER_ARGS[@]} \
-#     ${MOE_ARGS[@]}
+fi
