@@ -128,6 +128,7 @@ if [ "$MODE" == "train" ]; then
 else
     ## debug 
     echo "Debug mode"
+    ./kill_listener.sh
     debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node $GPUS_PER_NODE \
     --nnodes 1 --rdzv_endpoint=localhost:29800 --rdzv_backend c10d --max_restarts 0 --tee 3 $train_script \
     ${GPT_MODEL_ARGS[@]} \
