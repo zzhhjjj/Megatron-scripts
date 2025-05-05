@@ -5,7 +5,8 @@ megatron_files_path='/fsx/haojun/Megatron-files'
 
 # hf_model_name = "openai-community/gpt2"
 # hf_model_name = 'meta-llama/Meta-Llama-3-8B'
-hf_model_name = 'Qwen/Qwen1.5-MoE-A2.7B'
+# hf_model_name = 'Qwen/Qwen1.5-MoE-A2.7B'
+hf_model_name = 'unsloth/Llama-3.2-1B'
 model_name = hf_model_name.split("/")[-1]  # gpt2 for example
 
 # Paths to save the tokenizer and model

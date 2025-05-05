@@ -44,7 +44,7 @@ python download.py
 ```
 
 ### 3. Process the Dataset
-Save the processed dataset to the `datasets/dataset_name/processed` folder.
+Save the processed dataset to the `datasets/dataset_name/processed/tokenizer_name/` folder. These variables correspond to the tokenizer and tokenized dataset.
 ```bash
 ./process_data.sh
 ```
@@ -121,11 +121,14 @@ OTHER_ARGS=(
 )
 ```
 
-### Qwen training
-## Start:
+## MoE training
+### Start:
 Follow the instructions in quick start.
 
-## Tokenizer:
+### Compare with Nanotron
+Make sure to use the same tokenizer and dataset as the Nanotron training as well as the same config file.  
+
+### Qwen Tokenizer:
 The eos token id is hardcoded in the `tokenizer.py` file.
 ```python
 self.eod_id = 151643 # hardcode the eod id for Qwen/Qwen1.5-MoE-A2.7B
