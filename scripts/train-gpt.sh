@@ -22,7 +22,7 @@ GPUS_PER_NODE=1
 WORLD_SIZE=$(($GPUS_PER_NODE * $NUM_NODES))
 
 # Source argument values
-source /fsx/haojun/Megatron-files/config/args.sh
+source /fsx/haojun/Megatron-files/config/qwen_moe/moe_500m.sh
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 

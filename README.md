@@ -16,6 +16,10 @@ export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 cd Megatron-LM
 pip install -e .
+
+# to log 
+pip install tensorboard
+pip install wandb
 ```
 
 ## Path: 
@@ -127,6 +131,8 @@ Follow the instructions in quick start.
 
 ### Compare with Nanotron
 Make sure to use the same tokenizer and dataset as the Nanotron training as well as the same config file.  
+Use wandb to log the training metrics. Make sure the key is the same as in Nanotron. To use wandb, make sure to install tensorboard and wandb, and set aruments for both of them.  
+Search for `wandb_writer.log` to find the places to log the metrics.   
 
 ### Qwen Tokenizer:
 The eos token id is hardcoded in the `tokenizer.py` file.

@@ -2,8 +2,10 @@
 
 # === Paths ===
 CHECKPOINT_PATH=/fsx/haojun/Megatron-files/checkpoints
-VOCAB_FILE=/fsx/haojun/Megatron-files/tokenizers/Llama-3.2-1B/vocab.json
-MERGE_FILE=/fsx/haojun/Megatron-files/tokenizers/Llama-3.2-1B/merges.txt
+TOKENIZER_MODEL=unsloth/Llama-3.2-1B
+TENSORBOARD_LOGS_PATH=/fsx/haojun/logs/tensorboard/megatron-moe
+# VOCAB_FILE=/fsx/haojun/Megatron-files/tokenizers/Llama-3.2-1B/vocab.json
+# MERGE_FILE=/fsx/haojun/Megatron-files/tokenizers/Llama-3.2-1B/merges.txt
 DATA_PATH=/fsx/haojun/Megatron-files/datasets/fineweb-edu-CC-MAIN-2024-51/processed/Llama-3.2-1B/fineweb-edu-CC-MAIN-2024-51_text_document
 
 # === Argument groups ===
@@ -20,18 +22,20 @@ GPT_MODEL_ARGS=(
     --hidden-size 512 
     --ffn-hidden-size 2048
     --num-attention-heads 8 
-    --num-query-groups 2
+    --num-query-groups 4
     --group-query-attention
     --seq-length 1024 
     --max-position-embeddings 1024 
     --attention-backend flash # Can use (flash/fused/unfused/local)
     --normalization RMSNorm
     --norm-epsilon 1e-6
+    --position-embedding-type rope
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 
 TRAINING_ARGS=(
-    --micro-batch-size 16
+    --micro-batch-size 32
+    --global-batch-size 512 # 32*16(accumulation)
     # --rampup-batch-size 16 16 5859375 
     --train-iters 300 
     --weight-decay 0.1 
@@ -42,8 +46,9 @@ TRAINING_ARGS=(
     --bf16
     --lr 1.0e-3 
     --lr-decay-style cosine 
+    # --lr-wsd-decay-style
     --min-lr 1.0e-5
-    --lr-warmup-fraction 0.1 
+    --lr-warmup-iters 30
     --lr-decay-iters 200 
     --disable-bias-linear
 )
@@ -72,25 +77,28 @@ MOE_ARGS=(
 
 DATA_ARGS=(
     --data-path $DATA_PATH 
-    --vocab-file $VOCAB_FILE 
-    --merge-file $MERGE_FILE 
+    # --vocab-file $VOCAB_FILE 
+    # --merge-file $MERGE_FILE 
+    --tokenizer-type HuggingFaceTokenizer
+    --tokenizer-model $TOKENIZER_MODEL
     --split 949,50,1
     --num-workers 0
 )
 
 EVAL_AND_LOGGING_ARGS=(
-    --log-interval 100
+    --log-interval 50
     --save-interval 100000 
     --eval-interval 100000 
     --save $CHECKPOINT_PATH 
     # --load $CHECKPOINT_PATH 
     --eval-iters 5
-    # --tensorboard-dir $TENSORBOARD_LOGS_PATH 
+    --tensorboard-dir $TENSORBOARD_LOGS_PATH 
+    --tensorboard-log-interval 1
 )
 
 wandb_args=(
     --wandb-project qwen_moe
-    --wandb-exp-name qwen_moe_megatron
+    --wandb-exp-name qwen-moe-225M-megatron
 )
 
 OTHER_ARGS=(
@@ -98,4 +106,5 @@ OTHER_ARGS=(
     --no-persist-layer-norm
     --no-gradient-accumulation-fusion
     --no-masked-softmax-fusion
+    # --no-rope-fusion
 )

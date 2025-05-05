@@ -22,5 +22,4 @@ python $tools_dir/preprocess_data.py \
     --tokenizer-type HuggingFaceTokenizer \
     --tokenizer-model $tokenizer_model \
     --workers $num_proc \
-    --append-eod
-       
+    # --append-eod
