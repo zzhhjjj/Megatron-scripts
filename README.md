@@ -30,34 +30,48 @@ python scripts/create_folder.py
 **megatron_checkpoints**: megatron model checkpoints  
 
 ## Quick Start
-1. Login to huggingface
+
+### 1. Login to Hugging Face
 ```bash
-huggingface-cli login 
+huggingface-cli login
 ```
-2. Download the dataset  
-Save the dataset to the `datasets/dataset_name/raw` folder. The output file is in jsonl format.  
-Only "text" field is needed.
+
+### 2. Download the Dataset
+Save the dataset to the `datasets/dataset_name/raw` folder.  
+The output file will be in **JSONL** format. Only the `"text"` field is needed.
 ```bash
 python download.py
 ```
-3. Process the dataset  
-Save the processed dataset to the `datasets/dataset_name/processed` folder
+
+### 3. Process the Dataset
+Save the processed dataset to the `datasets/dataset_name/processed` folder.
 ```bash
 ./process_data.sh
 ```
-3. Download the tokenizer
-Save the tokenizer to the `tokenizers/model_name` folder   
-Example:  
-VOCAB_FILE=/fsx/haojun/Megatron-files/tokenizers/gpt2/vocab.json   
-MERGE_FILE=/fsx/haojun/Megatron-files/tokenizers/gpt2/merges.txt    
+
+### 4. Download the Tokenizer
+Save the tokenizer files to the `tokenizers/model_name` folder.
+
+**Example paths:**
 ```bash
-./tokenizer_download.py
+VOCAB_FILE=/fsx/haojun/Megatron-files/tokenizers/gpt2/vocab.json
+MERGE_FILE=/fsx/haojun/Megatron-files/tokenizers/gpt2/merges.txt
 ```
-4. Train the model from scratch
+
+Download using:
+```bash
+python tokenizer_download.py
+```
+
+### 5. Train the Model from Scratch
+Set the `VOCAB_FILE`, `MERGE_FILE`, and `DATA_PATH` in the `train-gpt.sh` file.
 ```bash
 ./train-gpt.sh
 ```
-The output contains `xxx.bin` and `xxx.idx`. The `--data-path` specified in later BERT training is the full path and new filename, but without the file extension.
+
+**Note:**  
+The output will include `.bin` and `.idx` files.  
+The `--data-path` argument for later BERT training should use the full path **and new filename (without the file extension)**.
 
 
 ## Inference
@@ -105,6 +119,16 @@ OTHER_ARGS=(
     --no-gradient-accumulation-fusion
     --no-masked-softmax-fusion
 )
+```
+
+### Qwen training
+## Start:
+Follow the instructions in quick start.
+
+## Tokenizer:
+The eos token id is hardcoded in the `tokenizer.py` file.
+```python
+self.eod_id = 151643 # hardcode the eod id for Qwen/Qwen1.5-MoE-A2.7B
 ```
 
 
