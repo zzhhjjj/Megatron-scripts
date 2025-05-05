@@ -47,9 +47,9 @@ TRAINING_ARGS=(
     --lr 1.0e-3 
     --lr-decay-style cosine 
     # --lr-wsd-decay-style
-    --min-lr 1.0e-5
-    --lr-warmup-iters 30
-    --lr-decay-iters 200 
+    --min-lr 3.0e-4
+    --lr-warmup-iters 50
+    --lr-decay-iters 300 # warmup is contained in the decay. so 50 warmup + 250 decay = 300
     --disable-bias-linear
 )
 
