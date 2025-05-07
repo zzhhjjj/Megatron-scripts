@@ -148,3 +148,4 @@ Trying to match the config files, but there could be some differences.
 
 Some known differences:
 - Megatron don't add weight decay to the RMSNorm parameters, while Nanotron does.
+- Dataset is not the same. Still need to check if Nanotron can use the same dataset as Megatron.
