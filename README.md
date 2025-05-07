@@ -73,6 +73,11 @@ Set the `VOCAB_FILE`, `MERGE_FILE`, and `DATA_PATH` in the `train-gpt.sh` file.
 ./train-gpt.sh
 ```
 
+### 6. Debug 
+```
+./train-gpt.sh -d
+```
+
 **Note:**  
 The output will include `.bin` and `.idx` files.  
 The `--data-path` argument for later BERT training should use the full path **and new filename (without the file extension)**.
