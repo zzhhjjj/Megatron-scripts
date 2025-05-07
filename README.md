@@ -140,6 +140,11 @@ The eos token id is hardcoded in the `tokenizer.py` file.
 self.eod_id = 151643 # hardcode the eod id for Qwen/Qwen1.5-MoE-A2.7B
 ```
 
+### Config
+The Nanotron config file is in the `/fsx/haojun/training_scripts/config/qwen/megatron` folder.  
+The Megatron config file is in the `/fsx/haojun/Megatron-files/config/qwen_moe` folder.  
 
+Trying to match the config files, but there could be some differences.
 
-
+Some known differences:
+- Megatron don't add weight decay to the RMSNorm parameters, while Nanotron does.
