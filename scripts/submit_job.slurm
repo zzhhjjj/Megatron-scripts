@@ -31,7 +31,7 @@ echo "CUDA version: $(python -c "import torch;print(torch.version.cuda)")"
 
 # Config
 # source /fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_long.sh
-source /fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_aux_loss_long.sh
+source /fsx/haojun/Megatron-files/config/qwen/104m_long.sh
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 

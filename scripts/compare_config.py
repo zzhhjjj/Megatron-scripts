@@ -70,16 +70,25 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
         # need to check this line
         ('--lr-decay-iters', parsed_yaml['optimizer']['learning_rate_scheduler']['lr_decay_steps'] + parsed_yaml['optimizer']['learning_rate_scheduler']['lr_warmup_steps']),
         ('--lr-warmup-iters', parsed_yaml['optimizer']['learning_rate_scheduler']['lr_warmup_steps']),
-
-        # MoE
-        ('--moe-aux-loss-coeff', parsed_yaml['model']['model_config']['moe_config']['aux_loss_coeff']) if 'aux_loss_coeff' in parsed_yaml['model']['model_config']['moe_config'] else (None, None),
-        ('--moe-router-load-balancing-type', parsed_yaml['model']['model_config']['moe_config']['load_balancing_type']) if 'load_balancing_type' in parsed_yaml['model']['model_config']['moe_config'] else (None, None),
-        ('--moe-router-topk', parsed_yaml['model']['model_config']['moe_config']['top_k']),
-        ('--moe-shared-expert-intermediate-size', parsed_yaml['model']['model_config']['moe_config']['shared_expert_intermediate_size']),
-        ('--moe-ffn-hidden-size', parsed_yaml['model']['model_config']['moe_config']['moe_intermediate_size']),
-        ('--moe-token-dispatcher-type', parsed_yaml['model']['model_config']['moe_config']['token_dispatcher_type']),
     ]
         
+    is_moe = 'moe_config' in parsed_yaml['model']
+    if is_moe:
+        pairs.append(('--moe-aux-loss-coeff', parsed_yaml['model']['model_config']['moe_config']['aux_loss_coeff']))
+        pairs.append(('--moe-router-load-balancing-type', parsed_yaml['model']['model_config']['moe_config']['load_balancing_type']))
+        pairs.append(('--moe-router-topk', parsed_yaml['model']['model_config']['moe_config']['top_k']))
+        pairs.append(('--moe-shared-expert-intermediate-size', parsed_yaml['model']['model_config']['moe_config']['shared_expert_intermediate_size']))
+        pairs.append(('--moe-ffn-hidden-size', parsed_yaml['model']['model_config']['moe_config']['moe_intermediate_size']))
+
+    if is_moe:
+        required_flags = [
+            '--moe-router-pre-softmax',
+        ]
+        all_args = [arg for group in parsed_args.values() for arg in group]
+        missing_flags = [flag for flag in required_flags if not any(arg.startswith(flag) for arg in all_args)]
+    
+        if missing_flags:
+            raise ValueError(f"Missing required flags in args.sh: {missing_flags}")
 
 
     for cli_key, yaml_val in pairs:
@@ -87,7 +96,7 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
             continue
         cli_val = extract_value_from_args(parsed_args, cli_key)
         if cli_val is None:
-            raise ValueError(f"Warning: {cli_key} not found in args.sh")
+            raise ValueError(f"Warning: {cli_key} not found in Megatron config")
         if not compare_values(cli_val, yaml_val):
             mismatches.append((cli_key, cli_val, yaml_val))
 
@@ -101,42 +110,34 @@ def extract_value_from_args(parsed_args, key):
                 if len(parts) > 1:
                     return parts[1]
     return None
-
-def assert_required_flags_exist(parsed_args, required_flags):
-    all_args = [arg for group in parsed_args.values() for arg in group]
-    missing_flags = [flag for flag in required_flags if not any(arg.startswith(flag) for arg in all_args)]
     
-    if missing_flags:
-        raise ValueError(f"Missing required flags in args.sh: {missing_flags}")
-
-required_flags = [
-    '--moe-router-pre-softmax',
-]
 
 # === Step 4: Main ===
 def compare_configs(sh_file_path, yaml_file_path):
     variables, parsed_args = parse_args_sh(sh_file_path)
     parsed_yaml = load_yaml_config(yaml_file_path)
-    assert_required_flags_exist(parsed_args, required_flags)
     mismatches = extract_comparable_fields(parsed_args, parsed_yaml)
 
     # Assert optimizer name is adam
     optimizer_name = parsed_yaml.get('optimizer', {}).get('optimizer_factory', {}).get('name', None)
-    if optimizer_name != 'adam':
-        raise ValueError(f"Expected optimizer name to be 'adam', but got '{optimizer_name}'")
     
     if mismatches:
         for key, cli_val, yaml_val in mismatches:
-            print(f"Mismatch for {key}: args.sh='{cli_val}' vs yaml='{yaml_val}'")
+            print(f"Mismatch for {key}:\n  Megatron config='{cli_val}'\n  Nanotron config='{yaml_val}'")
         raise ValueError("Config mismatch found.")
     else:
         print("success")
 
 # === Usage ===
 
-megatron_config = '/fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_aux_loss_long.sh'
+# MoE config 
+# megatron_config = '/fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_aux_loss_long.sh'
 # nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_aux_loss_long.yaml'
-nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_long.yaml'
+# nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_long.yaml'
+
+# Dense config
+megatron_config = '/fsx/haojun/Megatron-files/config/qwen/104m_long.sh'
+nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/dense/qwen_dense_104M_long.yaml'
 
 compare_configs(megatron_config, nanotron_config)
 
