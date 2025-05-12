@@ -30,6 +30,7 @@ GPT_MODEL_ARGS=(
     --normalization RMSNorm
     --norm-epsilon 1e-6
     --position-embedding-type rope
+    --rotary-base 10000.0
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 
@@ -41,6 +42,7 @@ TRAINING_ARGS=(
     --weight-decay 0.1 
     --adam-beta1 0.9 
     --adam-beta2 0.95 
+    --adam-eps 1e-8
     --init-method-std 0.02
     --clip-grad 1.0 
     --bf16

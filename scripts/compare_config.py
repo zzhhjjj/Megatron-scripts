@@ -53,7 +53,8 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
         ('--ffn-hidden-size', parsed_yaml['model']['model_config']['intermediate_size']),
         ('--seq-length', parsed_yaml['tokens']['sequence_length']),
         ('--micro-batch-size', parsed_yaml['tokens']['micro_batch_size']),
-        ('--global-batch-size', parsed_yaml['tokens']['micro_batch_size'] * parsed_yaml['tokens']['batch_accumulation_per_replica']),
+        ('--global-batch-size', parsed_yaml['tokens']['micro_batch_size'] * parsed_yaml['tokens']['batch_accumulation_per_replica'] * parsed_yaml['parallelism']['dp']),
+        ('--vocab-size', parsed_yaml['model']['model_config']['vocab_size']),
         
         ('--norm-epsilon', parsed_yaml['model']['model_config']['rms_norm_eps']),
         ('--num-query-groups', parsed_yaml['model']['model_config']['num_attention_heads'] // parsed_yaml['model']['model_config']['num_key_value_heads']),
@@ -70,6 +71,10 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
         # need to check this line
         ('--lr-decay-iters', parsed_yaml['optimizer']['learning_rate_scheduler']['lr_decay_steps'] + parsed_yaml['optimizer']['learning_rate_scheduler']['lr_warmup_steps']),
         ('--lr-warmup-iters', parsed_yaml['optimizer']['learning_rate_scheduler']['lr_warmup_steps']),
+
+        # Parallelism
+        ('--tensor-model-parallel-size', parsed_yaml['parallelism']['tp']),
+        ('--pipeline-model-parallel-size', parsed_yaml['parallelism']['pp']),
     ]
         
     is_moe = 'moe_config' in parsed_yaml['model']
@@ -117,10 +122,10 @@ def compare_configs(sh_file_path, yaml_file_path):
     variables, parsed_args = parse_args_sh(sh_file_path)
     parsed_yaml = load_yaml_config(yaml_file_path)
     mismatches = extract_comparable_fields(parsed_args, parsed_yaml)
-
-    # Assert optimizer name is adam
-    optimizer_name = parsed_yaml.get('optimizer', {}).get('optimizer_factory', {}).get('name', None)
     
+    print("Comparing config:")
+    print(f"Megatron config: {sh_file_path}")
+    print(f"Nanotron config: {yaml_file_path}")
     if mismatches:
         for key, cli_val, yaml_val in mismatches:
             print(f"Mismatch for {key}:\n  Megatron config='{cli_val}'\n  Nanotron config='{yaml_val}'")
@@ -136,8 +141,16 @@ def compare_configs(sh_file_path, yaml_file_path):
 # nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_long.yaml'
 
 # Dense config
-megatron_config = '/fsx/haojun/Megatron-files/config/qwen/104m_long.sh'
-nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/dense/qwen_dense_104M_long.yaml'
+megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_104M.sh'
+nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_104M.yaml'
+
+# 1B 
+# megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_1B.sh'
+# nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_1B.yaml'
+
+# 8B
+# megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B.sh'
+# nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B.yaml'
 
 compare_configs(megatron_config, nanotron_config)
 

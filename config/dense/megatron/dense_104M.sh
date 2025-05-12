@@ -10,17 +10,11 @@ DATA_PATH=/fsx/haojun/Megatron-files/datasets/fineweb-edu-CC-MAIN-2024-51/proces
 
 # === Argument groups ===
 
-DISTRIBUTED_ARGS=(
-    --nproc_per_node 1
-    --nnodes 1 
-    --master_addr localhost 
-    --master_port 6000
-)
-
 GPT_MODEL_ARGS=(
-    --num-layers 6
+    --num-layers 10
     --hidden-size 512 
     --ffn-hidden-size 2048
+    --vocab-size 128256
     --num-attention-heads 8 
     --num-query-groups 4
     --group-query-attention
@@ -30,50 +24,34 @@ GPT_MODEL_ARGS=(
     --normalization RMSNorm
     --norm-epsilon 1e-6
     --position-embedding-type rope
-    --rotary-base 10000.0
+    --rotary-base 10000
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 
 TRAINING_ARGS=(
     --micro-batch-size 32
-    --global-batch-size 512 # 32*16(accumulation)
+    --global-batch-size 512 
     # --rampup-batch-size 16 16 5859375 
-    --train-iters 300 
+    --train-iters 5000 
     --weight-decay 0.1 
     --adam-beta1 0.9 
     --adam-beta2 0.95 
+    --adam-eps 1e-8
     --init-method-std 0.02
     --clip-grad 1.0 
     --bf16
     --lr 1.0e-3 
     --lr-decay-style cosine 
     # --lr-wsd-decay-style
-    --min-lr 3.0e-4
-    --lr-warmup-iters 50
-    --lr-decay-iters 300 # warmup is contained in the decay. so 50 warmup + 250 decay = 300
+    --min-lr 1.0e-4
+    --lr-warmup-iters 500
+    --lr-decay-iters 5000 # warmup is contained in the decay. so 500 warmup + 4500 decay = 5000
     --disable-bias-linear
 )
 
 MODEL_PARALLEL_ARGS=(
     --tensor-model-parallel-size 1 
     --pipeline-model-parallel-size 1
-)
-
-MOE_ARGS=(
-    --num-experts 8
-    --moe-ffn-hidden-size 1408 # hidden size of each expert
-    --moe-shared-expert-intermediate-size  5632 # number of shared experts * hidden size of each expert. 
-    --expert-model-parallel-size 1
-    --moe-use-legacy-grouped-gemm # a bug when DP=4 with TEGroupedMLP
-    --moe-grouped-gemm
-    # --moe-permute-fusion
-    --moe-router-topk 1
-    --moe-router-pre-softmax
-    --use-distributed-optimizer
-    --moe-token-dispatcher-type alltoall
-    # auxiliary loss
-    --moe-router-load-balancing-type aux_loss # options: aux_loss, sinkhorn, none. Default is aux_loss.
-    --moe-aux-loss-coeff 1e-2
 )
 
 DATA_ARGS=(
@@ -95,11 +73,13 @@ EVAL_AND_LOGGING_ARGS=(
     --eval-iters 5
     --tensorboard-dir $TENSORBOARD_LOGS_PATH 
     --tensorboard-log-interval 1
+    --log-throughput
+    --log-timers-to-tensorboard
 )
 
 wandb_args=(
-    --wandb-project qwen_moe
-    --wandb-exp-name qwen-moe-225M-aux-loss-megatron
+    --wandb-project qwen
+    --wandb-exp-name 104M-megatron
 )
 
 OTHER_ARGS=(

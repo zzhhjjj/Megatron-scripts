@@ -16,17 +16,24 @@ export CUDA_DEVICE_MAX_CONNECTIONS=1
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000
-NUM_NODES=1
 NODE_RANK=0
-GPUS_PER_NODE=1
-WORLD_SIZE=$(($GPUS_PER_NODE * $NUM_NODES))
+DISTRIBUTED_ARGS=(
+    --nproc_per_node 1
+    --nnodes 1 
+    --master_addr localhost 
+    --master_port 6000
+)
 
 # Source argument values
 # source /fsx/haojun/Megatron-files/config/qwen_moe/moe_250m.sh
 # source /fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_aux_loss.sh
 
-# Qwen dense
-source # /fsx/haojun/Megatron-files/config/qwen/moe_250m_long.sh
+## dense model
+# 104M dense
+source /fsx/haojun/Megatron-files/config/dense/megatron/104m_long.sh
+
+# LLaMA 8B
+# source /fsx/haojun/Megatron-files/config/qwen/8B_long.sh
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 
@@ -44,7 +51,7 @@ if [ "$MODE" == "train" ]; then
 else
     echo "Debug mode"
     ./kill_listener.sh
-    debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node $GPUS_PER_NODE \
+    debugpy-run -m torch.distributed.run -p 5678 -- --nproc_per_node 1 \
     --nnodes 1 --rdzv_endpoint=localhost:29800 --rdzv_backend c10d --max_restarts 0 --tee 3 $train_script \
     "${GPT_MODEL_ARGS[@]}" \
         "${TRAINING_ARGS[@]}" \
