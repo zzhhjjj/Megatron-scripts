@@ -30,10 +30,9 @@ DISTRIBUTED_ARGS=(
 
 ## dense model
 # 104M dense
-source /fsx/haojun/Megatron-files/config/dense/megatron/104m_long.sh
-
-# LLaMA 8B
-# source /fsx/haojun/Megatron-files/config/qwen/8B_long.sh
+source /fsx/haojun/Megatron-files/config/dense/megatron/dense_104M.sh
+# source /fsx/haojun/Megatron-files/config/dense/megatron/dense_1B.sh
+# source /fsx/haojun/Megatron-files/config/dense/megatron/dense_8B.sh
 
 train_script=/fsx/haojun/Megatron-LM/pretrain_gpt.py
 
