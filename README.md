@@ -134,23 +134,41 @@ OTHER_ARGS=(
 ### Start:
 Follow the instructions in quick start.
 
-### Compare with Nanotron
-Make sure to use the same tokenizer and dataset as the Nanotron training as well as the same config file.  
-Use wandb to log the training metrics. Make sure the key is the same as in Nanotron. To use wandb, make sure to install tensorboard and wandb, and set aruments for both of them.  
-Search for `wandb_writer.log` to find the places to log the metrics.   
-
-### Qwen Tokenizer:
-The eos token id is hardcoded in the `tokenizer.py` file.
-```python
-self.eod_id = 151643 # hardcode the eod id for Qwen/Qwen1.5-MoE-A2.7B
+## Compare Megatron with Nanotron
+### 1. Download Dataset: 
+Run the following command to download the **Fineweb-edu CC-MAIN-2024-51** dataset.
+```bash
+python dataset_download.py
 ```
 
-### Config
-The Nanotron config file is in the `/fsx/haojun/training_scripts/config/qwen/megatron` folder.  
-The Megatron config file is in the `/fsx/haojun/Megatron-files/config/qwen_moe` folder.  
+### 2. Tokenizer:
+Use the same tokenizer as the Nanotron training. Run the following command to tokenize the dataset into bytes.  
+```bash
+python tokenize_nanotron.py
+```
 
+### 3. Config:
+Use the same config file as the Nanotron training. Run the following command to compare the config files. 
+```bash
+python compare_config.py
+```
+Right now, some of the config files are under /fsx/haojun/Megatron-files/config.  
+
+### 4. Log:
+Use wandb to log the training metrics. To use wandb, make sure to install tensorboard and wandb, and set aruments for both of them.  
+Search for `wandb_writer.log` to find the places to log the metrics.   
+
+### Note:
+Make sure to use the same tokenizer and dataset as the Nanotron training as well as the same config file.  
 Trying to match the config files, but there could be some differences.
 
 Some known differences:
 - Megatron don't add weight decay to the RMSNorm parameters, while Nanotron does.
-- Dataset is not the same. Still need to check if Nanotron can use the same dataset as Megatron.
+- Dataset is the same. But the order of the dataset is different. Still need to check if Nanotron can use the same dataset as Megatron.
+
+
+### Qwen Tokenizer:
+To use the Qwen tokenizer, the eos token id can be hardcoded in the `tokenizer.py` file.
+```python
+self.eod_id = 151643 # hardcode the eod id for Qwen/Qwen1.5-MoE-A2.7B
+```
