@@ -30,7 +30,6 @@ GPT_MODEL_ARGS=(
     --attention-dropout 0.0
     --hidden-dropout 0.0
     --swiglu
-    --untie-embeddings-and-output-weights
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 

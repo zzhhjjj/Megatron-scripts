@@ -85,21 +85,46 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
         pairs.append(('--moe-shared-expert-intermediate-size', parsed_yaml['model']['model_config']['moe_config']['shared_expert_intermediate_size']))
         pairs.append(('--moe-ffn-hidden-size', parsed_yaml['model']['model_config']['moe_config']['moe_intermediate_size']))
 
+    # Check required flags in Megatron args
     required_flags = [
         '--overlap-grad-reduce',
         '--disable-bias-linear',
         '--attention-dropout',
         '--hidden-dropout',
         '--swiglu',
-        '--untie-embeddings-and-output-weights'
     ]
     if is_moe:
         required_flags.append('--moe-router-pre-softmax')
     all_args = [arg for group in parsed_args.values() for arg in group]
     missing_flags = [flag for flag in required_flags if not any(arg.startswith(flag) for arg in all_args)]
+    
+    # Check required settings in YAML config
+    required_yaml_settings = {
+        'general.ignore_sanity_checks': True,
+        'optimizer.accumulate_grad_in_fp32': True,
+        'model.model_config.tie_word_embeddings': True,
+        'model.model_config._fused_rms_norm': True,
+        'model.model_config._fused_rotary_emb': True,
+        'model.model_config._use_qkv_packed': True,
+        'model.model_config.z_loss_enabled': False,
+    }
+    missing_yaml_settings = []
+    for path, expected_value in required_yaml_settings.items():
+        keys = path.split('.')
+        current = parsed_yaml
+        try:
+            for key in keys:
+                current = current[key]
+            if current != expected_value:
+                missing_yaml_settings.append(f"{path} should be {expected_value}, got {current}")
+        except (KeyError, TypeError):
+            missing_yaml_settings.append(f"{path} not found")
+        
+        if missing_yaml_settings:
+            raise ValueError(f"Missing or incorrect required settings in YAML config: {missing_yaml_settings}")
 
     if missing_flags:
-        raise ValueError(f"Missing required flags in args.sh: {missing_flags}")
+        raise ValueError(f"Missing required flags in args.sh: {missing_flags} in Megatron config")
 
 
     for cli_key, yaml_val in pairs:
