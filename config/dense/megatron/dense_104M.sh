@@ -70,7 +70,7 @@ DATA_ARGS=(
 )
 
 EVAL_AND_LOGGING_ARGS=(
-    --log-interval 50
+    --log-interval 1
     --save-interval 100000 
     --eval-interval 100000 
     --save $CHECKPOINT_PATH 
@@ -84,7 +84,7 @@ EVAL_AND_LOGGING_ARGS=(
 
 wandb_args=(
     --wandb-project qwen
-    --wandb-exp-name 104M-megatron
+    --wandb-exp-name 104M-megatron-hf
 )
 
 OTHER_ARGS=(

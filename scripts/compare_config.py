@@ -163,15 +163,19 @@ def compare_configs(sh_file_path, yaml_file_path):
         raise ValueError("Config mismatch found.")
     else:
         print("success")
+    print_info(yaml_file_path)
+
+def print_info(nanotron_config):
+    parsed_yaml = load_yaml_config(nanotron_config)
+    name = nanotron_config.split('/')[-1].split('.')[0]
+    batch_size = parsed_yaml['tokens']['micro_batch_size'] * parsed_yaml['tokens']['batch_accumulation_per_replica'] * parsed_yaml['parallelism']['dp']
+    print(f"{name} config:")
+    print(f"Tokens per step: {batch_size * parsed_yaml['tokens']['sequence_length']/10**6:.2f}M")
+    print()
 
 # === Usage ===
-
-# MoE config 
-# megatron_config = '/fsx/haojun/Megatron-files/config/qwen_moe/moe_250m_aux_loss_long.sh'
-# nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_aux_loss_long.yaml'
-# nanotron_config = '/fsx/haojun/training_scripts/config/qwen/megatron/qwen_225M_long.yaml'
-
 # Dense config
+# 104M
 megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_104M.sh'
 nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_104M.yaml'
 compare_configs(megatron_config, nanotron_config)
@@ -186,4 +190,12 @@ megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B.sh'
 nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B.yaml'
 compare_configs(megatron_config, nanotron_config)
 
+# 8B 2 nodes
+megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B_2nodes.sh'
+nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B_2nodes.yaml'
+compare_configs(megatron_config, nanotron_config)
 
+# 8B 4 nodes
+megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B_4nodes.sh'
+nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B_4nodes.yaml'
+compare_configs(megatron_config, nanotron_config)

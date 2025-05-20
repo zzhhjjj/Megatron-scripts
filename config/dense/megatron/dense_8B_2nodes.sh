@@ -37,9 +37,9 @@ GPT_MODEL_ARGS=(
 # number of tokens per step = 64 * 8192 = 512K
 TRAINING_ARGS=(
     --micro-batch-size 2
-    --global-batch-size 64 # micro-batch-size * num-accumulation-steps * DP
+    --global-batch-size 512 # micro-batch-size * num-accumulation-steps * DP
     # --rampup-batch-size 16 16 5859375 
-    --train-iters 5000 
+    --train-iters 100 
     --weight-decay 0.1 
     --adam-beta1 0.9 
     --adam-beta2 0.95 
@@ -86,7 +86,7 @@ EVAL_AND_LOGGING_ARGS=(
 
 wandb_args=(
     --wandb-project qwen
-    --wandb-exp-name 8B-megatron-hf
+    --wandb-exp-name 8B-2nodes-megatron-hf
 )
 
 OTHER_ARGS=(
