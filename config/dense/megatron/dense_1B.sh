@@ -24,12 +24,18 @@ GPT_MODEL_ARGS=(
     --norm-epsilon 1e-6
     --position-embedding-type rope
     --rotary-base 10000
+    --overlap-grad-reduce
+    --disable-bias-linear
+    --attention-dropout 0.0
+    --hidden-dropout 0.0
+    --swiglu
+    --untie-embeddings-and-output-weights
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 
 TRAINING_ARGS=(
     --micro-batch-size 8
-    --global-batch-size 256 
+    --global-batch-size 512 
     # --rampup-batch-size 16 16 5859375 
     --train-iters 5000 
     --weight-decay 0.1 

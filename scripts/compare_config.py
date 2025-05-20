@@ -85,15 +85,21 @@ def extract_comparable_fields(parsed_args, parsed_yaml):
         pairs.append(('--moe-shared-expert-intermediate-size', parsed_yaml['model']['model_config']['moe_config']['shared_expert_intermediate_size']))
         pairs.append(('--moe-ffn-hidden-size', parsed_yaml['model']['model_config']['moe_config']['moe_intermediate_size']))
 
+    required_flags = [
+        '--overlap-grad-reduce',
+        '--disable-bias-linear',
+        '--attention-dropout',
+        '--hidden-dropout',
+        '--swiglu',
+        '--untie-embeddings-and-output-weights'
+    ]
     if is_moe:
-        required_flags = [
-            '--moe-router-pre-softmax',
-        ]
-        all_args = [arg for group in parsed_args.values() for arg in group]
-        missing_flags = [flag for flag in required_flags if not any(arg.startswith(flag) for arg in all_args)]
-    
-        if missing_flags:
-            raise ValueError(f"Missing required flags in args.sh: {missing_flags}")
+        required_flags.append('--moe-router-pre-softmax')
+    all_args = [arg for group in parsed_args.values() for arg in group]
+    missing_flags = [flag for flag in required_flags if not any(arg.startswith(flag) for arg in all_args)]
+
+    if missing_flags:
+        raise ValueError(f"Missing required flags in args.sh: {missing_flags}")
 
 
     for cli_key, yaml_val in pairs:
@@ -143,14 +149,16 @@ def compare_configs(sh_file_path, yaml_file_path):
 # Dense config
 megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_104M.sh'
 nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_104M.yaml'
+compare_configs(megatron_config, nanotron_config)
 
 # 1B 
-# megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_1B.sh'
-# nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_1B.yaml'
+megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_1B.sh'
+nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_1B.yaml'
+compare_configs(megatron_config, nanotron_config)
 
 # 8B
-# megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B.sh'
-# nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B.yaml'
-
+megatron_config = '/fsx/haojun/Megatron-files/config/dense/megatron/dense_8B.sh'
+nanotron_config = '/fsx/haojun/Megatron-files/config/dense/nanotron/dense_8B.yaml'
 compare_configs(megatron_config, nanotron_config)
+
 

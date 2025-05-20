@@ -26,6 +26,12 @@ GPT_MODEL_ARGS=(
     --norm-epsilon 1e-6
     --position-embedding-type rope
     --rotary-base 10000
+    --overlap-grad-reduce
+    --disable-bias-linear
+    --attention-dropout 0.0
+    --hidden-dropout 0.0
+    --swiglu
+    --untie-embeddings-and-output-weights
     # --attention-backend auto # Can use (flash/fused/unfused/local)
 )
 
